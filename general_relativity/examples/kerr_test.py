@@ -23,7 +23,7 @@ from FANTASYRPG import geodesic_integrator
 # p0 = [-0.9764550153430405, 0, 3.8, 3]
 # delta = 0.5
 
-### Schwartzchild
+### Schwarzchild
 nsteps = 5500
 M = 1
 a = 0

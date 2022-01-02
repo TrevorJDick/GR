@@ -11,6 +11,7 @@ import numpy as np
 import sympy as sym
 
 import line_element_to_metric_tensor as lmt
+import utils.initial_momentum as im
 import utils.symbolic_conversions as cnv
 import utils.symbolic_variables as vrs
 
@@ -23,16 +24,18 @@ q, dq = vrs.create_variables_and_differentials(
     't, r, theta, phi',
     parameter_var_string=None
 )
-params = sym.Matrix([sym.symbols('M')])
+params_sym = sym.Matrix([sym.symbols('M')])
 
 # metric ds^2
 line_element = (
-    (1 - 2 * params[0] / q[1]) * dq[0] ** 2 
-    - (1 - 2 * params[0] / q[1]) ** -1 * dq[1] ** 2 
+    (1 - 2 * params_sym[0] / q[1]) * dq[0] ** 2 
+    - (1 - 2 * params_sym[0] / q[1]) ** -1 * dq[1] ** 2 
     - q[1] ** 2 * (dq[2] ** 2 + sym.sin(q[2]) ** 2 * dq[3] ** 2)
 )
+##### line element #####
 
-# metric tensor
+
+### metric tensor symbolic
 g_sym = lmt.line_element_to_metric_tensor(line_element, dq)
 # g_sym = -g_sym
 g_sym_inv = g_sym.inv()
@@ -40,40 +43,40 @@ g_sym_inv = g_sym.inv()
 g_sym_inv = -g_sym_inv 
 
 
-# initial conditions, solve for p_0 in initial 4-momentum p0
-params_const = np.array([1,])
-q0 = np.array([0, 40, np.pi / 2, 0])
-p0 = sym.Matrix([sym.symbols('p_0'), 0, 0, 3.83405])
+### initial conditions
+params = np.array([1,])
+# initial 4-position
+q0 = [0, 40, np.pi / 2, 0]
+# initial 3-momentum
+p0 = [0, 0, 3.83405]
+p0 = im.solve_energy_term_initial_4_momentum(q0, p0, g_sym_inv, params,
+                                         q, params_sym, timelike=True)
 
-g_sym_inv_0 = cnv.symbolic_obj_subs(
-    g_sym_inv,
-    [params, q],
-    [params_const, q0]
+
+# contravariant metric function of params and coords
+g_inv_func = cnv.symbolic_to_numpy_func(
+    g_sym_inv, 
+    [params_sym, q]
 )
-
-
-p_0_poly = np.dot(np.dot(p0.T, g_sym_inv_0), p0).flatten()[0] + 1  # add 1 for timelike
-print(p_0_poly)
-p_0 = sorted(sym.solve(p_0_poly, 'p_0'))[0]
-p0[0] = p_0
-p0 = cnv.symbolic_const_matrix_to_numpy(p0).flatten()
+del q, dq, params_sym, line_element, g_sym, g_sym_inv
 
 
 ### geodesics ###
 nsteps = 5500
 delta = 0.5
 omega=1
-order=4
+order=2
 
 
 s = timeit.default_timer()
 geod = geodesic_integrator(
+    g_inv_func,
     N=nsteps,
     delta=delta,
     omega=omega,
     q0=q0,
     p0=p0,
-    param=params_const, # use FANTASYRPG
+    params=params,
     order=order
 )
 e = timeit.default_timer()
