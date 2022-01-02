@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sym
 
+import utils.basic_geodesic_plotter as bgp
 import utils.symbolic_variables as vrs
 
 from geodesics_from_metric import geodesic_from_metric
@@ -65,31 +65,4 @@ y = np.sqrt(a ** 2 + eqns_motion[:, 1] ** 2) * np.sin(eqns_motion[:, 2]) * np.si
 z = eqns_motion[:, 1]  * np.cos(eqns_motion[:, 2])
 
 
-fig, axs = plt.subplots(1, 2, sharex=False, sharey=False)
-
-axs[0].scatter(x, y)
-axs[0].set_xlabel('X')
-axs[0].set_ylabel('Y')
-
-axs[1].scatter(x, z)
-axs[1].set_xlabel('X')
-axs[1].set_ylabel('Z')
-
-plt.tight_layout()
-plt.show()
-del fig, axs
-
-
-fig = plt.figure(figsize=(18, 18))
-ax = fig.add_subplot(projection='3d')
-ax.scatter(x, y, z, s=80)
-
-ax.plot(x, z, 'r', zdir='y', zs=y.max(), lw=1, alpha=0.75)
-ax.plot(y, z, 'g', zdir='x', zs=x.min(), lw=1, alpha=0.75)
-ax.plot(x, y, 'k', zdir='z', zs=z.min(), lw=1, alpha=0.75)
-
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.set_zlabel('Z')
-plt.show()
-del fig, ax
+bgp.geodesic_plotter_3d(x, y, z, axes_names=['X', 'Y', 'Z'])
