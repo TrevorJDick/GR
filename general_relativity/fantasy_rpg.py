@@ -1,3 +1,7 @@
+"""
+This module is based on https://github.com/pierrechristian/FANTASY
+"""
+
 import numpy as np
 
 import utils.differentiation_tools as dts

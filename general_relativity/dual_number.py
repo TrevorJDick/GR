@@ -8,7 +8,7 @@ class DualNumber:
     :math:`\\epsilon^2 = 0` and :math:`\\epsilon \\ne 0`.
     Their addition and multiplication properties make them
     suitable for Automatic Differentiation (AD).
-    This module is based on [1]_.
+    This module is based on [1]_ and [2]_.
     
     ### TODO add more function support and how to
     
@@ -18,6 +18,10 @@ class DualNumber:
         "FANTASY: User-Friendly Symplectic Geodesic Integrator
         for Arbitrary Metrics with Automatic Differentiation";
         `2021 ApJ 909 67 <https://doi.org/10.3847/1538-4357/abdc28>`__
+        
+    .. [2] The EinsteinPy Project (2021).
+        EinsteinPy: Python library for General Relativity
+        URL https://einsteinpy.org
     """
 
     def __init__(self, val, deriv):
