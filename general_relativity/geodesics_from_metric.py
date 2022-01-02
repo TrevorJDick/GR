@@ -15,7 +15,7 @@ import utils.initial_momentum as im
 import utils.symbolic_conversions as cnv
 import utils.symbolic_variables as vrs
 
-from FANTASYRPG import geodesic_integrator
+from fantasy_rpg import geodesic_integrator
 
 
 
