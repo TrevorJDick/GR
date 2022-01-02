@@ -17,20 +17,21 @@ def test_line_elem_metric_inverses():
     dq = sym.Matrix([dt, dx, dy, dz])
     
     # forward direction
-    line_element = sym.expand(-c ** 2 * dt ** 2 + dx ** 2 + dy ** 2 + dz ** 2)
+    line_element = sym.expand(-c ** 2 * dt ** 2 + dx ** 2 + dy ** 2 + dz ** 2 + 2 * dt * dz)
     g = lmt.line_element_to_metric_tensor(line_element, dq)
     bools.append(
         sym.Equality(line_element, lmt.metric_tensor_to_line_element(g, dq))
     )
-    # backward direction
+    # backward direction, choosing a different metric tensor that is not symmetric
     g = sym.Matrix(
         [
-            [-c ** 2, 0, 0, 0],
+            [-c ** 2, 0, 0, 2],
             [0, 1, 0, 0],
             [0, 0, 1, 0],
             [0, 0, 0, 1]
         ]
     )
+    g = (g + g.T) / 2 # make symmetric
     line_element = lmt.metric_tensor_to_line_element(g, dq)
     bools.append(
         sym.Equality(g, lmt.line_element_to_metric_tensor(line_element, dq))
