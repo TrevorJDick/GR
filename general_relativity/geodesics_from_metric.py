@@ -16,7 +16,8 @@ from fantasy_rpg import geodesic_integrator
 def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
                          q0, p0, metric_tensor_params, n_timesteps,
                          delta, omega=1, order=2, timelike=True,
-                         solve_p0_zeroth_term=True):
+                         solve_p0_zeroth_term=True,
+                         neg_g_inv=False):
     """
     
 
@@ -78,7 +79,8 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
     metric_tensor_sym = lmt.line_element_to_metric_tensor(line_element, dq)
     g_sym_inv = metric_tensor_sym.inv()
     ### TODO way to check if signature convention is still correct
-    g_sym_inv = -g_sym_inv
+    if neg_g_inv:
+        g_sym_inv = -g_sym_inv
     del metric_tensor_sym
     
     # calculate the initial condition for 4-momentum engery term
