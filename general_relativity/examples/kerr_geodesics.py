@@ -65,7 +65,7 @@ eqns_motion = np.array([i[0, :] for i in geod[1:]])
 # z = eqns_motion[:, 3]
 
 # convert to cartesian for Schwarzchild/Kerr
-a = 0 # schwarzchild
+a = metric_tensor_params[1] # kerr
 x = np.sqrt(a ** 2 + eqns_motion[:, 1] ** 2) * np.sin(eqns_motion[:, 2]) * np.cos(eqns_motion[:, 3])
 y = np.sqrt(a ** 2 + eqns_motion[:, 1] ** 2) * np.sin(eqns_motion[:, 2]) * np.sin(eqns_motion[:, 3])
 z = eqns_motion[:, 1]  * np.cos(eqns_motion[:, 2])
