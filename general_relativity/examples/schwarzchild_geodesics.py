@@ -44,7 +44,8 @@ geod = geodesic_from_metric(
     omega=1,
     order=2, 
     timelike=True,
-    solve_p0_zeroth_term=True
+    solve_p0_zeroth_term=True,
+    neg_g_inv=True
 )
 
 
