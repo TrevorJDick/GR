@@ -90,7 +90,11 @@ bgp.geodesic_plotter_3d(x, y, z, axes_names=['X', 'Y', 'Z'])
     "FANTASY: User-Friendly Symplectic Geodesic Integrator
     for Arbitrary Metrics with Automatic Differentiation";
     `2021 ApJ 909 67 <https://doi.org/10.3847/1538-4357/abdc28>`__
-[2] The EinsteinPy Project (2021).
+[2] Tao M. Explicit symplectic approximation of
+    nonseparable Hamiltonians: Algorithm and
+    long time performance. Phys Rev E. 2016 Oct;94(4-1):043303.
+    doi: 10.1103/PhysRevE.94.043303. Epub 2016 Oct 10. PMID: 27841574.
+[3] The EinsteinPy Project (2021).
     EinsteinPy: Python library for General Relativity
     URL https://einsteinpy.org
 ```
