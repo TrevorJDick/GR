@@ -1,5 +1,12 @@
 """
 This module is based on https://github.com/pierrechristian/FANTASY
+
+More detail however can be found in the paper:
+
+Tao M. Explicit symplectic approximation of
+nonseparable Hamiltonians: Algorithm and
+long time performance. Phys Rev E. 2016 Oct;94(4-1):043303.
+doi: 10.1103/PhysRevE.94.043303. Epub 2016 Oct 10. PMID: 27841574.
 """
 
 import numpy as np
@@ -8,6 +15,10 @@ import utils.differentiation_tools as dts
 
 
 def hamil_inside(g_inv_func, q, p, params, wrt):
+    """
+    On Schwarzchild and Kerr this method runs between
+    100 - 500 µs depending on if wrt is 0, 1, 2, or 3
+    """
     if isinstance(q, np.ndarray):
         q = q.tolist()
     # part of the hamiltonian flow
@@ -19,10 +30,8 @@ def hamil_inside(g_inv_func, q, p, params, wrt):
  
 def phi_ha(g_inv_func, delta, omega, q1, p1, q2, p2, param):
     ''' 
-    q1=(t1,r1,theta1,phi1),
-    p1=(pt1,pr1,ptheta1,pphi1),
-    q2=(t2,r2,theta2,phi2), 
-    p2=(pt2,pr2,ptheta2,pphi2)
+    time-delta flow of H_A = H(q1, p2) on the extended phase space
+    with symplectic 2-form dq1 ^ dp1 + dq2 ^ dp2
     '''
     dq1H_p1_0 = 0.5 * (hamil_inside(g_inv_func, q1, p2, param, 0))
     dq1H_p1_1 = 0.5 * (hamil_inside(g_inv_func, q1, p2, param, 1))
@@ -46,10 +55,8 @@ def phi_ha(g_inv_func, delta, omega, q1, p1, q2, p2, param):
 
 def phi_hb(g_inv_func, delta, omega, q1, p1, q2, p2, param):
     ''' 
-    q1=(t1,r1,theta1,phi1),
-    p1=(pt1,pr1,ptheta1,pphi1),
-    q2=(t2,r2,theta2,phi2), 
-    p2=(pt2,pr2,ptheta2,pphi2)
+    time-delta flow of H_B = H(q2, p1) on the extended phase space
+    with symplectic 2-form dq1 ^ dp1 + dq2 ^ dp2
     '''
     dq2H_p2_0 = 0.5 * (hamil_inside(g_inv_func, q2, p1, param, 0))
     dq2H_p2_1 = 0.5 * (hamil_inside(g_inv_func, q2, p1, param, 1))

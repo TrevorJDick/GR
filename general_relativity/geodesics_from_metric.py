@@ -58,6 +58,10 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
         Option to toggle the automatic computation of the zeroth initial 
         4-momentum term.  Applicable when p0 provided is a list of length 4.
         The default is True.
+    neg_g_inv : bool, optional
+        Option to toggle the sign convention on the inverse metric tensor.
+        Sometimes sympy inverse Matrix method may change the sign convention.
+        The default is False
 
     Returns
     -------
@@ -71,29 +75,46 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
         
         Note: Here q1 and q2 are the postions in the double
         phase space, constructed for the symplectic integration scheme, which
-        has the 2-form dq1 ^ dp1 + dq2 + dp2 (where ^ means the wedge product
+        has the 2-form dq1 ^ dp1 + dq2 ^ dp2 (where ^ means the wedge product
         of differential forms).
 
     """
     # metric tensor symbolic
     metric_tensor_sym = lmt.line_element_to_metric_tensor(line_element, dq)
     g_sym_inv = metric_tensor_sym.inv()
-    ### TODO way to check if signature convention is still correct
+    del metric_tensor_sym
+    # incase signature convention is not correct
     if neg_g_inv:
         g_sym_inv = -g_sym_inv
-    del metric_tensor_sym
     
     # calculate the initial condition for 4-momentum engery term
     if solve_p0_zeroth_term or (len(p0) == 3):
-        p0 = im.solve_energy_term_initial_4_momentum(
-            q0, 
-            p0,
-            g_sym_inv,
-            metric_tensor_params,
-            q, 
-            metric_tensor_params_sym,
-            timelike=timelike
-        )
+        # try catch in case didnt get sign correct on g_sym_inv
+        try:
+            p0 = im.solve_energy_term_initial_4_momentum(
+                q0, 
+                p0,
+                g_sym_inv,
+                metric_tensor_params,
+                q, 
+                metric_tensor_params_sym,
+                timelike=timelike
+            )
+        except TypeError as e:
+            print(
+                f'CAUGHT: {e}\n'
+                'Trying g_sym_inv = -g_sym_inv...\n'
+            )
+            g_sym_inv = -g_sym_inv
+            p0 = im.solve_energy_term_initial_4_momentum(
+                q0, 
+                p0,
+                g_sym_inv,
+                metric_tensor_params,
+                q, 
+                metric_tensor_params_sym,
+                timelike=timelike
+            )
     
     # contravariant metric function of params and coords
     g_inv_func = cnv.symbolic_to_numpy_func(
