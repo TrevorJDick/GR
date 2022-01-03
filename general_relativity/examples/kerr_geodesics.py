@@ -29,13 +29,13 @@ line_element = (
 
 # intial conditions
 metric_tensor_params = [1, 0.5] # M=1, a=0.5
-q0 = [0, 40, np.pi / 2, 0]
+q0 = [0, 20, np.pi / 2, 0]
 # initial 3-momentum
 p0 = [0, 3.8, 3]
 
 # geodesic
-n_timesteps = 5500
-delta = 0.5
+n_timesteps = 10000
+delta = 1
 geod = geodesic_from_metric(
     q, 
     dq,
