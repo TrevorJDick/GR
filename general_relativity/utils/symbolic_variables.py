@@ -57,5 +57,21 @@ def create_variables_and_differentials(variables_string,
     return q, dq
 
 
-def create_param_variables(params_string):
-    return sym.Matrix(sym.symbols(params_string))
+def create_param_variables(params_string, parameter_var_string_list=None):
+    s = sym.symbols(params_string)
+    if isinstance(s, sym.Symbol):
+        params_sym = sym.Matrix([s])
+    else:
+        params_sym = sym.Matrix(s)
+    
+    if parameter_var_string_list is not None:
+        if parameter_var_string_list == []:
+            raise ValueError(
+                f'{parameter_var_string_list} -- parameter_var_string_list,'
+                ' cannot be an empty list, use None!'
+            )
+        param_vars = [sym.symbols(parameter_var_string) for parameter_var_string in parameter_var_string_list]
+        params_sym = sym.Matrix(
+            [sym.Function(e.name)(*param_var) for e, param_var in zip(params_sym, param_vars)]
+        )
+    return params_sym
