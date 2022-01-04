@@ -1,26 +1,14 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import sympy as sym
 
+import metrics.metrics as met
 import utils.basic_geodesic_plotter as bgp
-import utils.symbolic_variables as vrs
 
 from geodesics_from_metric import geodesic_from_metric
 
 
 ##### Schwarzchild Metric #####
-q, dq = vrs.create_variables_and_differentials(
-    't, r, theta, phi',
-    parameter_var_string=None
-)
-params_sym = sym.Matrix([sym.symbols('M')])
-
-# metric ds^2
-line_element = (
-    (1 - 2 * params_sym[0] / q[1]) * dq[0] ** 2 
-    - (1 - 2 * params_sym[0] / q[1]) ** -1 * dq[1] ** 2 
-    - q[1] ** 2 * (dq[2] ** 2 + sym.sin(q[2]) ** 2 * dq[3] ** 2)
-)
+q, dq, line_element, params_sym = met.schwarzchild_metric()
 
 # intial conditions
 metric_tensor_params = [1] # M=1
