@@ -13,13 +13,14 @@ nonseparable Hamiltonians: Algorithm and
 long time performance. Phys Rev E. 2016 Oct;94(4-1):043303.
 doi: 10.1103/PhysRevE.94.043303. Epub 2016 Oct 10. PMID: 27841574.
 """
-
 import numpy as np
+
+from functools import partial
 
 import utils.differentiation_tools as dts
 
 
-def hamil_inside(g_inv_func, q, p, params, wrt):
+def hamil_inside(g_inv_func, params, q, p, wrt):
     """
     On Schwarzchild and Kerr this method runs between
     100 - 500 µs depending on if wrt is 0, 1, 2, or 3
@@ -32,7 +33,7 @@ def hamil_inside(g_inv_func, q, p, params, wrt):
     return np.dot(np.dot(p.T, partial_g_inv), p)
 
  
-def phi_ha(g_inv_func, delta, q1, p1, q2, p2, params):
+def phi_ha(g_inv_func, params, delta, q1, p1, q2, p2):
     ''' 
     time-delta flow of H_A = H(q1, p2) on the extended phase space
     with symplectic 2-form dq1 ^ dp1 + dq2 ^ dp2
@@ -40,7 +41,7 @@ def phi_ha(g_inv_func, delta, q1, p1, q2, p2, params):
     Only updates q2 and p1
     '''
     dha_dq1 = np.array(
-        [hamil_inside(g_inv_func, q1, p2, params, i) for i in range(4)]
+        [hamil_inside(g_inv_func, params, q1, p2, i) for i in range(4)]
     ) / 2
     p1_updated = p1 - delta * dha_dq1
     
@@ -49,7 +50,7 @@ def phi_ha(g_inv_func, delta, q1, p1, q2, p2, params):
     return (q1, p1_updated, q2_updated, p2)
 
 
-def phi_hb(g_inv_func, delta, q1, p1, q2, p2, params):
+def phi_hb(g_inv_func, params, delta, q1, p1, q2, p2):
     ''' 
     time-delta flow of H_B = H(q2, p1) on the extended phase space
     with symplectic 2-form dq1 ^ dp1 + dq2 ^ dp2
@@ -57,7 +58,7 @@ def phi_hb(g_inv_func, delta, q1, p1, q2, p2, params):
     Only updates q1 and p2
     '''
     dhb_dq2 = np.array(
-        [hamil_inside(g_inv_func, q2, p1, params, i) for i in range(4)]
+        [hamil_inside(g_inv_func, params, q2, p1, i) for i in range(4)]
     ) / 2
     p2_updated = p2 - delta * dhb_dq2
     
@@ -80,73 +81,119 @@ def phi_hc(R_delta, q1, p1, q2, p2):
     return (q1_updated, p1_updated, q2_updated, p2_updated)
 
 
-def updator_2nd_ord(g_inv_func, delta, R_delta, q1, p1, q2, p2, params):
-    first_ha_step = phi_ha(
+def phi_delta_2(g_inv_func, params, R_delta, delta, q1, p1, q2, p2):
+    phi_ha_half_delta = partial(
+        phi_ha,
         g_inv_func,
-        0.5 * delta,
-        q1,
-        p1,
-        q2,
-        p2,
-        params
+        params,
+        0.5 * delta
+    )
+    phi_hb_half_delta = partial(
+        phi_hb,
+        g_inv_func,
+        params,
+        0.5 * delta
+    )
+    phi_hc_delta = partial(
+        phi_hc,
+        R_delta(delta)
     )
     
-    first_hb_step = phi_hb(
-        g_inv_func,
-        0.5 * delta,
-        *first_ha_step,
-        params
-    )
-    
-    hc_step = phi_hc(
-        R_delta,
-        *first_hb_step
-    )
-    
-    second_hb_step = phi_hb(
-        g_inv_func,
-        0.5 * delta,
-        *hc_step,
-        params
-    )
-    
-    second_ha_step = phi_ha(
-        g_inv_func,
-        0.5 * delta,
-        *second_hb_step,
-        params
-    )
+    first_ha_step = phi_ha_half_delta(q1, p1, q2, p2)
+    first_hb_step = phi_hb_half_delta(*first_ha_step)
+    hc_step = phi_hc_delta(*first_hb_step)
+    second_hb_step = phi_hb_half_delta(*hc_step)
+    second_ha_step = phi_ha_half_delta(*second_hb_step)
     return np.array(second_ha_step)
 
 
-def updator_4th_ord(g_inv_func, delta, R_delta, q1, p1, q2, p2, params):
-    z14 = 1.3512071919596578
-    z04 = -1.7024143839193155
-    step1 = updator_2nd_ord(
+def gamma_lth_order(ell):
+    gamma_l = 1 / (2 - 2 ** (1 / (ell + 1)))
+    return gamma_l
+
+
+def phi_delta_4(g_inv_func, params, R_delta, delta, q1, p1, q2, p2):
+    gamma_l =  gamma_lth_order(4)
+    
+    phi_delta_2_gamma_l = partial(
+        phi_delta_2,
         g_inv_func,
-        delta * z14,
+        params,
         R_delta,
-        q1,
-        p1,
-        q2,
-        p2,
-        params
+        gamma_l * delta
     )
-    step2 = updator_2nd_ord(
+    phi_delta_2_1m2gmmal = partial(
+        phi_delta_2,
         g_inv_func,
-        delta * z04,
+        params,
         R_delta,
-        *step1,
-        params
+        (1 - 2 * gamma_l) * delta
     )
-    step3 = updator_2nd_ord(
-        g_inv_func,
-        delta * z14,
-        R_delta,
-        *step2,
-        params
-    )
+    
+    step1 = phi_delta_2_gamma_l(q1, p1, q2, p2)
+    step2 = phi_delta_2_1m2gmmal(*step1)
+    step3 = phi_delta_2_gamma_l(*step2)
     return step3
+
+
+def phi_delta_6(g_inv_func, params, R_delta, delta, q1, p1, q2, p2):
+    gamma_l =  gamma_lth_order(6)
+    
+    phi_delta_4_gamma_l = partial(
+        phi_delta_4,
+        g_inv_func,
+        params,
+        R_delta,
+        gamma_l * delta
+    )
+    phi_delta_4_1m2gmmal = partial(
+        phi_delta_4,
+        g_inv_func,
+        params,
+        R_delta,
+        (1 - 2 * gamma_l) * delta
+    )
+    
+    step1 = phi_delta_4_gamma_l(q1, p1, q2, p2)
+    step2 = phi_delta_4_1m2gmmal(*step1)
+    step3 = phi_delta_4_gamma_l(*step2)
+    return step3
+
+
+def phi_delta_ell(g_inv_func, params, delta, R_delta, q1, p1, q2, p2, ell):
+    """
+    Recursive function
+    
+    for ell >= 2
+    """
+    if ell == 2: 
+        _phi_delta_ell = phi_delta_2(
+            g_inv_func,
+            params,
+            R_delta,
+            delta,
+            q1,
+            p1,
+            q2,
+            p2
+        )
+        return _phi_delta_ell
+    else:
+        return
+
+
+def R_delta_func(omega):
+    def _inner(delta):
+        I = np.identity(4)
+        a = np.cos(2 * omega * delta) * I
+        b = np.sin(2 * omega * delta) * I
+        R_delta = np.zeros((8, 8))
+        R_delta[:4, :4] = a
+        R_delta[:4, 4:] = b
+        R_delta[4:, :4] = -b
+        R_delta[4:, 4:] = a
+        return R_delta
+    return _inner
 
 
 def geodesic_integrator(g_inv_func, N, delta, omega, q0, p0, params, order=2):
@@ -157,32 +204,33 @@ def geodesic_integrator(g_inv_func, N, delta, omega, q0, p0, params, order=2):
     result_list = [[q1, p1, q2, p2]]
     result = (q1, p1, q2, p2)
     
+    if (order % 2 != 0) or (order == 0):
+        raise ValueError(
+            f'{order} -- order must be a non-zero even integer!'
+        )
     if order == 2:
-        updator_func = updator_2nd_ord
+        updator_func = phi_delta_2
     elif order == 4:
-        updator_func = updator_4th_ord
+        updator_func = phi_delta_4
+    elif order == 6:
+        updator_func = phi_delta_6
     else:
         raise ValueError(
             f'{order} -- not supported integration order scheme!'
         )
-      
+    # updator_func = phi_delta_ell 
+    
     # used for phi_hc
-    I = np.identity(4)
-    a = np.cos(2 * omega * delta) * I
-    b = np.sin(2 * omega * delta) * I
-    R_delta = np.zeros((8, 8))
-    R_delta[:4, :4] = a
-    R_delta[:4, 4:] = b
-    R_delta[4:, :4] = -b
-    R_delta[4:, 4:] = a
+    R_delta = R_delta_func(omega)
     
     for count, timestep in enumerate(range(N)):
         result = updator_func(
             g_inv_func,
-            delta,
+            params,
             R_delta,
-            *result,
-            params
+            delta,
+            *result
+            # order
         )
         result_list += [result]
         

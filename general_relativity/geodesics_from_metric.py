@@ -122,6 +122,11 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
         [metric_tensor_params_sym, q]
     )
 
+    if order > 2:
+        print(
+            f'WARNING: order={order} > default=2, delta={delta} '
+            '-- you may need to decrease delta to prevent overflow.'
+        )
     # geodesic
     s = timeit.default_timer()
     geod = geodesic_integrator(
