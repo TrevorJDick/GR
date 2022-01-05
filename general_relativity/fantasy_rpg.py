@@ -112,6 +112,84 @@ def gamma_lth_order(ell):
     return gamma_l
 
 
+def phi_delta_ell(g_inv_func, params, R_delta, delta, ell, q1, p1, q2, p2):
+    """
+    Recursive function
+    
+    for ell >= 2
+    """
+    if ell == 2:
+        return phi_delta_2(g_inv_func, params, R_delta, delta, q1, p1, q2, p2)
+    else:
+        gamma_l =  gamma_lth_order(ell)
+        _phi1 = partial(
+            phi_delta_ell,
+            g_inv_func,
+            params,
+            R_delta,
+            gamma_l * delta,
+            ell - 2
+        )
+        _phi2 = partial(
+            phi_delta_ell,
+            g_inv_func,
+            params,
+            R_delta,
+            (1 - 2 * gamma_l) * delta,
+            ell - 2
+        )
+        return _phi1(*_phi2(*_phi1(q1, p1, q2, p2)))
+
+
+def R_delta_func(omega):
+    def _inner(delta):
+        I = np.identity(4)
+        a = np.cos(2 * omega * delta) * I
+        b = np.sin(2 * omega * delta) * I
+        R_delta = np.zeros((8, 8))
+        R_delta[:4, :4] = a
+        R_delta[:4, 4:] = b
+        R_delta[4:, :4] = -b
+        R_delta[4:, 4:] = a
+        return R_delta
+    return _inner
+
+
+def geodesic_integrator(g_inv_func, n_timesteps, delta, omega, q0, p0,
+                        metric_tensor_params, order=2):
+    q0 = np.array(q0)
+    p0 = np.array(p0)
+    q1, q2, p1, p2 = (q0, q0, p0, p0)
+    
+    result_list = [[q1, p1, q2, p2]]
+    result = (q1, p1, q2, p2)
+    
+    if (order % 2 != 0) or (order == 0):
+        raise ValueError(
+            f'{order} -- order must be a non-zero even integer!'
+        )
+    
+    # used for phi_hc
+    R_delta = R_delta_func(omega)
+    
+    for count in range(n_timesteps):
+        result = phi_delta_ell(
+            g_inv_func,
+            metric_tensor_params,
+            R_delta,
+            delta,
+            order,
+            *result
+        )
+        result_list += [result]
+        
+        if not count % 1000:
+            print(
+                f'On iteration number {count} with delta {delta}'
+            )
+    return result_list
+
+
 def phi_delta_4(g_inv_func, params, R_delta, delta, q1, p1, q2, p2):
     gamma_l =  gamma_lth_order(4)
     
@@ -160,43 +238,8 @@ def phi_delta_6(g_inv_func, params, R_delta, delta, q1, p1, q2, p2):
     return step3
 
 
-def phi_delta_ell(g_inv_func, params, delta, R_delta, q1, p1, q2, p2, ell):
-    """
-    Recursive function
-    
-    for ell >= 2
-    """
-    if ell == 2: 
-        _phi_delta_ell = phi_delta_2(
-            g_inv_func,
-            params,
-            R_delta,
-            delta,
-            q1,
-            p1,
-            q2,
-            p2
-        )
-        return _phi_delta_ell
-    else:
-        return
-
-
-def R_delta_func(omega):
-    def _inner(delta):
-        I = np.identity(4)
-        a = np.cos(2 * omega * delta) * I
-        b = np.sin(2 * omega * delta) * I
-        R_delta = np.zeros((8, 8))
-        R_delta[:4, :4] = a
-        R_delta[:4, 4:] = b
-        R_delta[4:, :4] = -b
-        R_delta[4:, 4:] = a
-        return R_delta
-    return _inner
-
-
-def geodesic_integrator(g_inv_func, N, delta, omega, q0, p0, params, order=2):
+def geodesic_integrator_depreciated(g_inv_func, N, delta, omega, q0, p0, params,
+                                    order=2):
     q0 = np.array(q0)
     p0 = np.array(p0)
     q1, q2, p1, p2 = (q0, q0, p0, p0)
@@ -218,7 +261,6 @@ def geodesic_integrator(g_inv_func, N, delta, omega, q0, p0, params, order=2):
         raise ValueError(
             f'{order} -- not supported integration order scheme!'
         )
-    # updator_func = phi_delta_ell 
     
     # used for phi_hc
     R_delta = R_delta_func(omega)
@@ -230,7 +272,6 @@ def geodesic_integrator(g_inv_func, N, delta, omega, q0, p0, params, order=2):
             R_delta,
             delta,
             *result
-            # order
         )
         result_list += [result]
         

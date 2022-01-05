@@ -131,12 +131,12 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
     s = timeit.default_timer()
     geod = geodesic_integrator(
         g_inv_func,
-        N=n_timesteps,
-        delta=delta,
-        omega=omega,
-        q0=q0,
-        p0=p0,
-        params=metric_tensor_params,
+        n_timesteps,
+        delta,
+        omega,
+        q0,
+        p0,
+        metric_tensor_params,
         order=order
     )
     e = timeit.default_timer()

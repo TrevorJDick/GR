@@ -17,7 +17,7 @@ q0 = [0, 40, np.pi / 2, 0]
 p0 = [0, 0, 3.83405]
 
 # geodesic
-n_timesteps = 5500
+n_timesteps = 11000
 delta = 0.5
 geod = geodesic_from_metric(
     q, 
@@ -30,7 +30,7 @@ geod = geodesic_from_metric(
     n_timesteps,
     delta, 
     omega=1,
-    order=2, 
+    order=4, 
     timelike=True,
     solve_p0_zeroth_term=True,
     neg_g_inv=True
