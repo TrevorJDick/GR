@@ -4,13 +4,23 @@ The project goal is simple: given a metric, through a provided line element of t
 The underpinning idea for solving the geodesic equations is given by [1] and [2].  A dynamical Hamiltonian system can be solved via a symplectic integration technique that seeks solutions of 4-postion and 4-momentum in an extended phase space.  The technique offers arbitary order local error with the builtin 2n-order for updating each step.  The lowest 2nd order symplectic integration technique already provides realatively low error solutions for large times and also accounts for non-separable Hamiltonians through a coupling term <img src="https://latex.codecogs.com/svg.image?\omega" title="\omega" />.  Thus, it can be necesary at times to tune the parameter <img src="https://latex.codecogs.com/svg.image?\omega" title="\omega" />, to achieve well behaved trajectories.
 
 ## Cool Plots
-![Schwarzchild](general_relativity/images/schwarzchild_metric_order_4_2g.png)
+#### Schwarzchild M=1, order 4 with 11000 timesteps
+![schwarzchild_metric_order_4_2d](general_relativity/images/schwarzchild_metric_order_4_2d.png)
+![schwarzchild_metric_order_4_3d](general_relativity/images/schwarzchild_metric_order_4_3d.png)
+#### Kerr M=1, a=0.5, order 4 with 6000 timesteps
+![kerr_metric_order_4_2d](general_relativity/images/kerr_metric_order_4_2d.png)
+![kerr_metric_order_4_3d](general_relativity/images/kerr_metric_order_4_3d.png)
 
 ## Philosophy
 The philosophy behind this project is building code that is as simple as possible, so that it can be modified and adapted to suit the needs of those wanting to play around with constructing thier own geodesics from custom metrics.  In order to provide a reasonable service of such a goal the methods for computing the space time trajectories needed to already be both resource light and fairly accurate for long time intervals.  Thus, the desicion to use both a symbolic approach to python, via sympy, and a more accurate sympletic integration scheme for finding geodesics made the most sense.   The choice to incorporate more abstract elements may be a geat boon or somewhat cumbersome.  We shall see as the utility of the project is futher explored.
 
 ## Requirements
 The project only relies on `numpy`, `sympy`, and `matplotlib` for plotting
+
+## Best Way to Contribute
+Reference what you use and give credit.  This project was not built in a vacuum.  It has been iterated on and the more the source material of mathematics is understood the more this project will evolve into its own.  Follow the project philosphy, and see how that is reflected in code.  This tool should only become more useful to scientists, students, or anyone wanting to learn.
+
+We need more metrics!  See the the metric folder and metric.py.  One can always add thier own metric as per the goal of the project, but building up a library of metrics would be nicet too.
 
 ### Example Schwarzchild Metric
 Defining a metric is both simple and easy to explore in jupyter notebook first (see example_notebooks/schwarzchild_metric.ipynb)
