@@ -17,23 +17,21 @@ import numpy as np
 
 from functools import partial
 
-import utils.differentiation_tools as dts
+import utils.symbolic_conversions as cnv
+import utils.symbolic_differentiation_tools as dts
 
 
-def hamil_inside(g_inv_func, params, q, p, wrt):
+def dh_dq(dg_inv_dq, q, p, wrt):
     """
     On Schwarzchild and Kerr this method runs between
     100 - 500 µs depending on if wrt is 0, 1, 2, or 3
     """
     # q and p are just single (4,1) vectors
-    # q must be list for partial_deriv_metric_tensor
-    q = q.tolist()
-    # dg/dqi
-    partial_g_inv = dts.partial_deriv_metric_tensor(g_inv_func, params, q, wrt)
-    return np.dot(np.dot(p.T, partial_g_inv), p)
+    dg_dqi = dg_inv_dq[wrt](*q) # the 4 derivatives pre computed
+    return np.dot(np.dot(p.T, dg_dqi), p)
 
  
-def phi_ha(g_inv_func, params, delta, q1, p1, q2, p2):
+def phi_ha(g_inv_func, dg_inv_dq, delta, q1, p1, q2, p2):
     ''' 
     time-delta flow of H_A = H(q1, p2) on the extended phase space
     with symplectic 2-form dq1 ^ dp1 + dq2 ^ dp2
@@ -41,16 +39,16 @@ def phi_ha(g_inv_func, params, delta, q1, p1, q2, p2):
     Only updates q2 and p1
     '''
     dha_dq1 = np.array(
-        [hamil_inside(g_inv_func, params, q1, p2, i) for i in range(4)]
+        [dh_dq(dg_inv_dq, q1, p2, i) for i in range(4)]
     ) / 2
     p1_updated = p1 - delta * dha_dq1
     
-    dha_dp2 = np.dot(g_inv_func(params, q1), p2)
+    dha_dp2 = np.dot(g_inv_func(*q1), p2)
     q2_updated = q2 + delta * dha_dp2
     return (q1, p1_updated, q2_updated, p2)
 
 
-def phi_hb(g_inv_func, params, delta, q1, p1, q2, p2):
+def phi_hb(g_inv_func, dg_inv_dq, delta, q1, p1, q2, p2):
     ''' 
     time-delta flow of H_B = H(q2, p1) on the extended phase space
     with symplectic 2-form dq1 ^ dp1 + dq2 ^ dp2
@@ -58,11 +56,11 @@ def phi_hb(g_inv_func, params, delta, q1, p1, q2, p2):
     Only updates q1 and p2
     '''
     dhb_dq2 = np.array(
-        [hamil_inside(g_inv_func, params, q2, p1, i) for i in range(4)]
+        [dh_dq(dg_inv_dq, q2, p1, i) for i in range(4)]
     ) / 2
     p2_updated = p2 - delta * dhb_dq2
     
-    dhb_dq1 = np.dot(g_inv_func(params, q2), p1)
+    dhb_dq1 = np.dot(g_inv_func(*q2), p1)
     q1_updated = q1 + delta * dhb_dq1
     return (q1_updated, p1, q2, p2_updated)
 
@@ -81,17 +79,18 @@ def phi_hc(R_delta, q1, p1, q2, p2):
     return (q1_updated, p1_updated, q2_updated, p2_updated)
 
 
-def phi_delta_2(g_inv_func, params, R_delta, delta, q1, p1, q2, p2):
+def phi_delta_2(g_inv_func, dg_inv_dq, R_delta, delta,
+                q1, p1, q2, p2):
     phi_ha_half_delta = partial(
         phi_ha,
         g_inv_func,
-        params,
+        dg_inv_dq,
         0.5 * delta
     )
     phi_hb_half_delta = partial(
         phi_hb,
         g_inv_func,
-        params,
+        dg_inv_dq,
         0.5 * delta
     )
     phi_hc_delta = partial(
@@ -112,20 +111,30 @@ def gamma_lth_order(ell):
     return gamma_l
 
 
-def phi_delta_ell(g_inv_func, params, R_delta, delta, ell, q1, p1, q2, p2):
+def phi_delta_ell(g_inv_func, dg_inv_dq, R_delta, delta, ell,
+                  q1, p1, q2, p2):
     """
     Recursive function
     
     for ell >= 2
     """
     if ell == 2:
-        return phi_delta_2(g_inv_func, params, R_delta, delta, q1, p1, q2, p2)
+        return phi_delta_2(
+            g_inv_func,
+            dg_inv_dq,
+            R_delta, 
+            delta,
+            q1,
+            p1,
+            q2, 
+            p2
+        )
     else:
         gamma_l =  gamma_lth_order(ell)
         _phi1 = partial(
             phi_delta_ell,
-            g_inv_func,
-            params,
+            g_inv_func, 
+            dg_inv_dq,
             R_delta,
             gamma_l * delta,
             ell - 2
@@ -133,7 +142,7 @@ def phi_delta_ell(g_inv_func, params, R_delta, delta, ell, q1, p1, q2, p2):
         _phi2 = partial(
             phi_delta_ell,
             g_inv_func,
-            params,
+            dg_inv_dq,
             R_delta,
             (1 - 2 * gamma_l) * delta,
             ell - 2
@@ -155,8 +164,8 @@ def R_delta_func(omega):
     return _inner
 
 
-def geodesic_integrator(g_inv_func, n_timesteps, delta, omega, q0, p0,
-                        metric_tensor_params, order=2):
+def geodesic_integrator(g_sym_inv, q, n_timesteps, delta, omega, q0, p0, 
+                        order=2):
     q0 = np.array(q0)
     p0 = np.array(p0)
     q1, q2, p1, p2 = (q0, q0, p0, p0)
@@ -171,106 +180,23 @@ def geodesic_integrator(g_inv_func, n_timesteps, delta, omega, q0, p0,
     
     # used for phi_hc
     R_delta = R_delta_func(omega)
+    
+    g_inv_func = cnv.symbolic_to_numpy_func(g_sym_inv, q)
+    
+    # partial derivatives of g w.r.t. to each coord in q symbolic
+    # list of functions of q array
+    dg_inv_dq = [
+        dts.metric_tensor_partial_derivative(g_sym_inv, q, i)
+        for i in range(4)
+    ]
     
     for count in range(n_timesteps):
         result = phi_delta_ell(
             g_inv_func,
-            metric_tensor_params,
+            dg_inv_dq,
             R_delta,
             delta,
             order,
-            *result
-        )
-        result_list += [result]
-        
-        if not count % 1000:
-            print(
-                f'On iteration number {count} with delta {delta}'
-            )
-    return result_list
-
-
-def phi_delta_4(g_inv_func, params, R_delta, delta, q1, p1, q2, p2):
-    gamma_l =  gamma_lth_order(4)
-    
-    phi_delta_2_gamma_l = partial(
-        phi_delta_2,
-        g_inv_func,
-        params,
-        R_delta,
-        gamma_l * delta
-    )
-    phi_delta_2_1m2gmmal = partial(
-        phi_delta_2,
-        g_inv_func,
-        params,
-        R_delta,
-        (1 - 2 * gamma_l) * delta
-    )
-    
-    step1 = phi_delta_2_gamma_l(q1, p1, q2, p2)
-    step2 = phi_delta_2_1m2gmmal(*step1)
-    step3 = phi_delta_2_gamma_l(*step2)
-    return step3
-
-
-def phi_delta_6(g_inv_func, params, R_delta, delta, q1, p1, q2, p2):
-    gamma_l =  gamma_lth_order(6)
-    
-    phi_delta_4_gamma_l = partial(
-        phi_delta_4,
-        g_inv_func,
-        params,
-        R_delta,
-        gamma_l * delta
-    )
-    phi_delta_4_1m2gmmal = partial(
-        phi_delta_4,
-        g_inv_func,
-        params,
-        R_delta,
-        (1 - 2 * gamma_l) * delta
-    )
-    
-    step1 = phi_delta_4_gamma_l(q1, p1, q2, p2)
-    step2 = phi_delta_4_1m2gmmal(*step1)
-    step3 = phi_delta_4_gamma_l(*step2)
-    return step3
-
-
-def geodesic_integrator_depreciated(g_inv_func, N, delta, omega, q0, p0, params,
-                                    order=2):
-    q0 = np.array(q0)
-    p0 = np.array(p0)
-    q1, q2, p1, p2 = (q0, q0, p0, p0)
-    
-    result_list = [[q1, p1, q2, p2]]
-    result = (q1, p1, q2, p2)
-    
-    if (order % 2 != 0) or (order == 0):
-        raise ValueError(
-            f'{order} -- order must be a non-zero even integer!'
-        )
-    if order == 2:
-        updator_func = phi_delta_2
-    elif order == 4:
-        updator_func = phi_delta_4
-    elif order == 6:
-        updator_func = phi_delta_6
-    else:
-        raise ValueError(
-            f'{order} -- not supported integration order scheme!'
-        )
-    
-    # used for phi_hc
-    R_delta = R_delta_func(omega)
-    
-    for count, timestep in enumerate(range(N)):
-        result = updator_func(
-            g_inv_func,
-            params,
-            R_delta,
-            delta,
             *result
         )
         result_list += [result]

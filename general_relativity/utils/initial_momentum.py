@@ -9,6 +9,11 @@ def solve_energy_term_initial_4_momentum(q0, p0, g_sym_inv,
                                          metric_tensor_params,
                                          q, metric_tensor_params_sym,
                                          timelike=True):
+    """
+    Solve the equation, where P = (p0, p1, p1, p3),
+    (P^T).(g^-1).P = (m0*c)^2 for p0 when p1, p2, p3 are given.
+
+    """
     p0_sym = sym.zeros(4, 1)
     p0_sym[0, 0] = sym.symbols('p_0')
     p0_sym[1:, 0] = p0

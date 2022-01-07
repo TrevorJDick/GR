@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+  # -*- coding: utf-8 -*-
 """
 Created on Fri Dec 24 04:02:36 2021
 
@@ -116,12 +116,13 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
                 timelike=timelike
             )
     
-    # contravariant metric function of params and coords
-    g_inv_func = cnv.symbolic_to_numpy_func(
-        g_sym_inv, 
-        [metric_tensor_params_sym, q]
+    # contravariant metric tensor with param values subbed in
+    g_sym_inv = cnv.symbolic_obj_subs(
+        g_sym_inv,
+        [metric_tensor_params_sym],
+        [metric_tensor_params]
     )
-
+    
     if order > 2:
         print(
             f'WARNING: order={order} > default=2, delta={delta} '
@@ -130,13 +131,13 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
     # geodesic
     s = timeit.default_timer()
     geod = geodesic_integrator(
-        g_inv_func,
+        g_sym_inv,
+        q,
         n_timesteps,
         delta,
         omega,
         q0,
         p0,
-        metric_tensor_params,
         order=order
     )
     e = timeit.default_timer()

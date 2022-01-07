@@ -41,3 +41,20 @@ def kerr_metric():
     return q, dq, line_element, params_sym
 
 
+def einstein_rosen_metric():
+    q, dq = vrs.create_variables_and_differentials(
+        't, rho, phi z',
+        parameter_var_string=None
+    )
+    params_sym = vrs.create_param_variables('Dummy')
+    psi = sym.besselj(0, q[1]) * sym.cos(q[0])
+    gamma = (
+        (1 / 2) * q[1] ** 2 * (sym.besselj(0, q[1]) ** 2 + sym.besselj(1, q[1]) ** 2)
+        - q[1] * sym.besselj(0, q[1]) * sym.besselj(1, q[1]) * sym.cos(q[0]) ** 2
+    )
+    line_element = (
+        sym.exp(2 * gamma - 2 * psi) * (-dq[0] ** 2 + dq[1] ** 2)
+        + sym.exp(-2 * psi) * q[1] ** 2 * dq[2] ** 2
+        + sym.exp(2 * psi) * dq[3] ** 2
+    )
+    return q, dq, line_element, params_sym

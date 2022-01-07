@@ -2,6 +2,8 @@
 import numpy as np
 import sympy as sym
 
+from scipy.special import jv, kv, iv, yv # bessel functions
+
 
 def symbolic_to_numpy_func(symbolic_expr_obj, symbolic_variables):
     """
@@ -24,7 +26,9 @@ def symbolic_to_numpy_func(symbolic_expr_obj, symbolic_variables):
         symbolic_expr_obj.
 
     """
-    return sym.lambdify(symbolic_variables, symbolic_expr_obj, modules='numpy')
+    bessel = {'besselj': jv, 'besselk':kv, 'besseli':iv, 'bessely':yv}
+    libraries = [bessel, 'numpy']  
+    return sym.lambdify(symbolic_variables, symbolic_expr_obj, modules=libraries)
 
 
 def symbolic_obj_subs(symbolic_expr_obj, symbolic_variables,

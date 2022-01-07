@@ -17,8 +17,8 @@ q0 = [0, 20, np.pi / 2, 0]
 p0 = [0, 3.8, 3]
 
 # geodesic
-n_timesteps = 6000
-delta = 1
+n_timesteps = 11000
+delta = 0.25
 geod = geodesic_from_metric(
     q, 
     dq,
