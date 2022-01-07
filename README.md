@@ -10,6 +10,15 @@ The underpinning idea for solving the geodesic equations is given by [1] and [2]
 #### Kerr M=1, a=0.5, order 4 with 6000 timesteps
 ![kerr_metric_order_4_2d](general_relativity/images/kerr_metric_order_4_2d.png)
 ![kerr_metric_order_4_3d](general_relativity/images/kerr_metric_order_4_3d.png)
+#### Einstein-Rosen Wave, order 2 with 5500 timesteps
+coordinates (t, rho, phi, z)
+initial 4-position
+q0 = [0, 40, np.pi / 2, 0]
+initial 3-momentum
+p0 = [0, 0, 1]
+(note: mainly tesing this more complex metrix works, not entirely sure of good intial conditions to test with)
+![image](https://user-images.githubusercontent.com/34322886/148498027-db0dd481-0cfe-4479-8513-5d8a037c7845.png)
+![image](https://user-images.githubusercontent.com/34322886/148498212-3d5c0eb6-3327-4ae6-85a5-432b65e89abb.png)
 
 ## Philosophy
 The philosophy behind this project is building code that is as simple as possible, so that it can be modified and adapted to suit the needs of those wanting to play around with constructing thier own geodesics from custom metrics.  In order to provide a reasonable service of such a goal the methods for computing the space time trajectories needed to already be both resource light and fairly accurate for long time intervals.  Thus, the desicion to use both a symbolic approach to python, via sympy, and a more accurate sympletic integration scheme for finding geodesics made the most sense.   The choice to incorporate more abstract elements may be a geat boon or somewhat cumbersome.  We shall see as the utility of the project is futher explored.
