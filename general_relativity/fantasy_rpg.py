@@ -22,10 +22,6 @@ import utils.symbolic_differentiation_tools as dts
 
 
 def dh_dq(dg_inv_dq, q, p, wrt):
-    """
-    On Schwarzchild and Kerr this method runs between
-    100 - 500 µs depending on if wrt is 0, 1, 2, or 3
-    """
     # q and p are just single (4,1) vectors
     dg_dqi = dg_inv_dq[wrt](*q) # the 4 derivatives pre computed
     return np.dot(np.dot(p.T, dg_dqi), p)

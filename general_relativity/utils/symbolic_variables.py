@@ -70,8 +70,14 @@ def create_param_variables(params_string, parameter_var_string_list=None):
                 f'{parameter_var_string_list} -- parameter_var_string_list,'
                 ' cannot be an empty list, use None!'
             )
-        param_vars = [sym.symbols(parameter_var_string) for parameter_var_string in parameter_var_string_list]
+        param_vars = [
+            sym.symbols(parameter_var_string) 
+            for parameter_var_string in parameter_var_string_list
+        ]
         params_sym = sym.Matrix(
-            [sym.Function(e.name)(*param_var) for e, param_var in zip(params_sym, param_vars)]
+            [
+                sym.Function(e.name)(*param_var) 
+                for e, param_var in zip(params_sym, param_vars)
+            ]
         )
     return params_sym

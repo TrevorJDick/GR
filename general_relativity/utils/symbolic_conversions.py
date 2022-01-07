@@ -28,7 +28,11 @@ def symbolic_to_numpy_func(symbolic_expr_obj, symbolic_variables):
     """
     bessel = {'besselj': jv, 'besselk':kv, 'besseli':iv, 'bessely':yv}
     libraries = [bessel, 'numpy']  
-    return sym.lambdify(symbolic_variables, symbolic_expr_obj, modules=libraries)
+    return sym.lambdify(
+        symbolic_variables,
+        symbolic_expr_obj,
+        modules=libraries
+    )
 
 
 def symbolic_obj_subs(symbolic_expr_obj, symbolic_variables,
