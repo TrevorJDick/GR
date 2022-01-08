@@ -47,10 +47,11 @@ def geodesic_plotter_3d(x1, x2, x3, axes_names=['X', 'Y', 'Z']):
     axs[1].legend(loc='upper right')
     
     plt.tight_layout()
+    
     plt.show()
     del fig, axs
-
-
+    
+    
     fig = plt.figure(figsize=(18, 18))
     ax = fig.add_subplot(projection='3d')
     ax.scatter(x1, x2, x3, s=80)

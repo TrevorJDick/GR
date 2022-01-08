@@ -13,6 +13,8 @@ q, dq, line_element, params_sym = met.morris_thorne_metric()
 # intial conditions
 metric_tensor_params = [2] # size of wormhole throat
 # q0 = [0, 8, np.pi / 2, 5 * (np.pi / 180)] # need to try 0, 5, 10, 15, 20 degrees
+# # initial 3-momentum
+# p0 = [0, 2.0, .1]
 q0 = np.random.normal(loc=0, scale=10, size=4)
 q0[0] = 0
 # initial 3-momentum
