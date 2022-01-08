@@ -13,9 +13,9 @@ The underpinning idea for solving the geodesic equations is given by [1] and [2]
 #### Einstein-Rosen Wave, order 2 with 5500 timesteps
 coordinates (t, rho, phi, z)
 initial 4-position
-q0 = [0, 40, np.pi / 2, 0]
+q0 = [0, 10, np.pi / 4, 1]
 initial 3-momentum
-p0 = [0, 0, 1]
+p0 = [0, 2, 1]
 (note: mainly tesing this more complex metrix works, not entirely sure of good intial conditions to test with)
 ![image](https://user-images.githubusercontent.com/34322886/148498027-db0dd481-0cfe-4479-8513-5d8a037c7845.png)
 ![image](https://user-images.githubusercontent.com/34322886/148498212-3d5c0eb6-3327-4ae6-85a5-432b65e89abb.png)

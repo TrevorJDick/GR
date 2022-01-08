@@ -17,9 +17,9 @@ q, dq, line_element, params_sym = met.einstein_rosen_metric()
 
 # intial conditions
 metric_tensor_params = [0] # dummy var
-q0 = [0, 40, np.pi / 2, 0]
+q0 = [0, 10, np.pi / 4, 1]
 # initial 3-momentum
-p0 = [0, 0, 1]
+p0 = [0, 2, 1]
 
 # geodesic
 n_timesteps = 5500
