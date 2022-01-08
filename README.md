@@ -111,6 +111,8 @@ bgp.geodesic_plotter_3d(x, y, z, axes_names=['X', 'Y', 'Z'])
 
 
 #### References
+Special thanks to https://github.com/GeoffCope/ for sparking this project. Also for work in finding interesting metrics and reducing them to explicit forms, which often involves solving systems of pdes!
+
 ```
 [1] Christian, Pierre and Chan, Chi-Kwan;
     "FANTASY: User-Friendly Symplectic Geodesic Integrator
