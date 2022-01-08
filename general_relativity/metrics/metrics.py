@@ -6,7 +6,7 @@ import utils.symbolic_variables as vrs
 
 def schwarzchild_metric():
     q, dq = vrs.create_variables_and_differentials(
-        't, r, theta, phi',
+        't r theta phi',
         parameter_var_string=None
     )
     params_sym = vrs.create_param_variables('M')
@@ -22,7 +22,7 @@ def schwarzchild_metric():
 
 def kerr_metric():
     q, dq = vrs.create_variables_and_differentials(
-        't, r, theta, phi',
+        't r theta phi',
         parameter_var_string=None
     )
     params_sym = vrs.create_param_variables('M a')
@@ -43,7 +43,7 @@ def kerr_metric():
 
 def einstein_rosen_metric():
     q, dq = vrs.create_variables_and_differentials(
-        't, rho, phi z',
+        't rho phi z',
         parameter_var_string=None
     )
     params_sym = vrs.create_param_variables('Dummy')
@@ -56,5 +56,20 @@ def einstein_rosen_metric():
         sym.exp(2 * gamma - 2 * psi) * (-dq[0] ** 2 + dq[1] ** 2)
         + sym.exp(-2 * psi) * q[1] ** 2 * dq[2] ** 2
         + sym.exp(2 * psi) * dq[3] ** 2
+    )
+    return q, dq, line_element, params_sym
+
+
+def morris_thorne_metric():
+    q, dq = vrs.create_variables_and_differentials(
+        't ell theta phi',
+        parameter_var_string=None
+    )
+    params_sym = vrs.create_param_variables('b_0')
+    
+    line_element = (
+        -dq[0] ** 2
+        + dq[1] ** 2
+        + (params_sym[0] ** 2 + q[1] ** 2) * (dq[2] ** 2 + sym.sin(q[2]) ** 2 * dq[3] ** 2)
     )
     return q, dq, line_element, params_sym

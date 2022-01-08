@@ -12,7 +12,7 @@ import utils.basic_geodesic_plotter as bgp
 from geodesics_from_metric import geodesic_from_metric
 
 
-##### Schwarzchild Metric #####
+##### Einstein-Rosen Metric #####
 q, dq, line_element, params_sym = met.einstein_rosen_metric()
 
 # intial conditions
