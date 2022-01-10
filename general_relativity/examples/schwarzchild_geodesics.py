@@ -18,7 +18,7 @@ p0 = np.array([0, 0, 3.83405])
 
 # geodesic
 n_timesteps = 5500
-delta = 0.25
+delta = 0.5
 geod = geodesic_from_metric(
     q, 
     dq,

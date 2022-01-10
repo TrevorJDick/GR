@@ -106,7 +106,11 @@ def phi_ha(g_inv_func, g_inv_deriv_funcs, delta, V):
     
     Only updates x and p
     '''
-    return V + delta * psi_a(g_inv_func, g_inv_deriv_funcs, delta, V)
+    V_new = V + delta * psi_a(g_inv_func, g_inv_deriv_funcs, delta, V)
+    # print(
+    #     f'phi_ha:\n{V_new[:, :, 0]}\n'
+    # )
+    return V_new
 
 
 def phi_hb(g_inv_func, g_inv_deriv_funcs, delta, V):
@@ -116,11 +120,19 @@ def phi_hb(g_inv_func, g_inv_deriv_funcs, delta, V):
     
     Only updates q and y
     '''
-    return V + delta * psi_b(g_inv_func, g_inv_deriv_funcs, delta, V)
+    V_new = V + delta * psi_b(g_inv_func, g_inv_deriv_funcs, delta, V)
+    # print(
+    #     f'phi_hb:\n{V_new[:, :, 0]}\n'
+    # )
+    return V_new
 
 
 def phi_hc(C, V):
-    return np.einsum('ij,jkl->ikl', C, V)
+    V_new = np.einsum('ij,jkl->ikl', C, V)
+    # print(
+    #     f'phi_hc:\n{V_new[:, :, 0]}\n'
+    # )
+    return V_new
 
 
 def phi_delta_2(g_inv_func, g_inv_deriv_funcs, C_delta, delta, V):
@@ -282,7 +294,7 @@ def geodesic_integrator(g_sym_inv, q, n_timesteps, delta, omega, Q0, P0,
     
     """
     V0 = initial_position_momentum_to_tensor(Q0, P0)
-    
+    print(V0[:, :, 0])
     if (order % 2 != 0) or (order == 0):
         raise ValueError(
             f'{order} -- order must be a non-zero even integer!'
@@ -301,7 +313,7 @@ def geodesic_integrator(g_sym_inv, q, n_timesteps, delta, omega, Q0, P0,
     ]
     
     result_list = [V0]
-    ### TODO might be faster now to just run phi_delta_ell in list constructor
+    result = V0
     for count in range(n_timesteps):
         result = phi_delta_ell(
             g_inv_func,
@@ -309,10 +321,9 @@ def geodesic_integrator(g_sym_inv, q, n_timesteps, delta, omega, Q0, P0,
             C_delta,
             delta,
             order,
-            V0
+            result
         )
-        result_list += [result]
-        del result
+        result_list.append(result)
         
         if not count % 1000:
             print(
