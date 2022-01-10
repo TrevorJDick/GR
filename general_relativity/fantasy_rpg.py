@@ -67,7 +67,7 @@ def p_dot_dg_dot_p(M, P):
     return np.einsum('il,ijkl,jl->kl', P, M, P)
 
 
-def psi_a(g_inv_func, g_inv_deriv_funcs, delta, V):
+def psi_a(g_inv_func, g_inv_deriv_funcs, V):
     phase_space_dim, n_coords, N = V.shape
     Q = V[0, :, :]
     Y = V[3, :, :]
@@ -83,7 +83,7 @@ def psi_a(g_inv_func, g_inv_deriv_funcs, delta, V):
     return np.concatenate([Z, -h / 2, f, Z], axis=0)
 
 
-def psi_b(g_inv_func, g_inv_deriv_funcs, delta, V):
+def psi_b(g_inv_func, g_inv_deriv_funcs, V):
     phase_space_dim, n_coords, N = V.shape
     X = V[2, :, :]
     P = V[1, :, :]
@@ -106,11 +106,7 @@ def phi_ha(g_inv_func, g_inv_deriv_funcs, delta, V):
     
     Only updates x and p
     '''
-    V_new = V + delta * psi_a(g_inv_func, g_inv_deriv_funcs, delta, V)
-    # print(
-    #     f'phi_ha:\n{V_new[:, :, 0]}\n'
-    # )
-    return V_new
+    return V + delta * psi_a(g_inv_func, g_inv_deriv_funcs, V)
 
 
 def phi_hb(g_inv_func, g_inv_deriv_funcs, delta, V):
@@ -120,19 +116,11 @@ def phi_hb(g_inv_func, g_inv_deriv_funcs, delta, V):
     
     Only updates q and y
     '''
-    V_new = V + delta * psi_b(g_inv_func, g_inv_deriv_funcs, delta, V)
-    # print(
-    #     f'phi_hb:\n{V_new[:, :, 0]}\n'
-    # )
-    return V_new
+    return V + delta * psi_b(g_inv_func, g_inv_deriv_funcs, V)
 
 
 def phi_hc(C, V):
-    V_new = np.einsum('ij,jkl->ikl', C, V)
-    # print(
-    #     f'phi_hc:\n{V_new[:, :, 0]}\n'
-    # )
-    return V_new
+    return 0.5 * np.einsum('ij,jkl->ikl', C, V)
 
 
 def phi_delta_2(g_inv_func, g_inv_deriv_funcs, C_delta, delta, V):
