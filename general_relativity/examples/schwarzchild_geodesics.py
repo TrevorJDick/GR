@@ -12,13 +12,13 @@ q, dq, line_element, params_sym = met.schwarzchild_metric()
 
 # intial conditions
 metric_tensor_params = [1] # M=1
-q0 = [0, 40, np.pi / 2, 0]
+q0 = np.array([0, 40, np.pi / 2, 0])
 # initial 3-momentum
-p0 = [0, 0, 3.83405]
+p0 = np.array([0, 0, 3.83405])
 
 # geodesic
-n_timesteps = 90000
-delta = 0.03125
+n_timesteps = 5500
+delta = 0.25
 geod = geodesic_from_metric(
     q, 
     dq,
@@ -30,7 +30,7 @@ geod = geodesic_from_metric(
     n_timesteps,
     delta, 
     omega=1,
-    order=10, 
+    order=2, 
     timelike=True,
     solve_p0_zeroth_term=True,
     neg_g_inv=True
@@ -40,8 +40,10 @@ geod = geodesic_from_metric(
 ### for plotting ###
 
 # two phase space should convege so will just pick first phase space
-eqns_motion = np.array([i[0, :] for i in geod[1:]])
-
+## can only choose 1 particle
+i = 0
+eqns_motion = np.array([t[0, :, i] for t in geod])
+del i
 # stock coords
 # x = eqns_motion[:, 1]
 # y = eqns_motion[:, 2]

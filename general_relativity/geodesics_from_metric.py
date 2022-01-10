@@ -14,7 +14,7 @@ from fantasy_rpg import geodesic_integrator
 
 
 def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
-                         q0, p0, metric_tensor_params, n_timesteps,
+                         Q0, P0, metric_tensor_params, n_timesteps,
                          delta, omega=1, order=2, timelike=True,
                          solve_p0_zeroth_term=True,
                          neg_g_inv=False):
@@ -32,10 +32,12 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
     metric_tensor_params_sym : sympy expression
         sympy Matrix holding the parameter varaibles used in the line element
         or metric tensor.
-    q0 : list
-        Initial 4-position of the test particle.
-    p0 : list
-        Initial 3 or 4-momentum for the test particle.  If 3-momentum is 
+    Q0 : array like, shape (n_coords, N)
+        Initial 4-postion matrix of the test particles. Rows are commponents
+        of postions and columns are different initial positions.
+    P0 : array like, shape (n_coords, N)
+        Initial 4-momentum matrix of the test particles. Rows are commponents
+        of momentum and columns are different initial momenta. If 3-momentum is 
         provided, the zeroth component will automatically be solved for using
         the metric.  Otherwise if a 4-momentum is provided there is an option
         to ignore the zeroth term and recalculte using the 
@@ -66,16 +68,13 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
     Returns
     -------
     geod : list
-        List of arrays that contain the test particle trajectories for each 
-        timestep.  The zeroth term is simply the initial conditions stored as
-        [q0, p0, q0, p0].  The rest of the list contrains the calculated 
-        trajectories where, now, each element is an array. The rows of each 
-        array are organized (q1, p1, q2, p2) and columns are the coordinate
-        compoents of each. 
+        List of results for each timestep.  Each timestep will contain an
+        array of shape (phase_space_dim, n_coords, N).  The phase space will
+        contain (q, p, x, y) vectors.
         
-        Note: Here q1 and q2 are the postions in the double
+        Note: Here q and x are the postions in the double
         phase space, constructed for the symplectic integration scheme, which
-        has the 2-form dq1 ^ dp1 + dq2 ^ dp2 (where ^ means the wedge product
+        has the 2-form dq ^ dp + dx ^ dy (where ^ means the wedge product
         of differential forms).
 
     """
@@ -87,13 +86,17 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
     if neg_g_inv:
         g_sym_inv = -g_sym_inv
     
+    if (len(Q0.shape) == 1) & (len(P0.shape) == 1):
+        Q0 = Q0.reshape((-1, 1))
+        P0 = P0.reshape((-1, 1))
+    
     # calculate the initial condition for 4-momentum engery term
-    if solve_p0_zeroth_term or (len(p0) == 3):
+    if solve_p0_zeroth_term or (P0.shape[0] == 3):
         # try catch in case didnt get sign correct on g_sym_inv
         try:
-            p0 = im.solve_energy_term_initial_4_momentum(
-                q0, 
-                p0,
+            P0 = im.solve_energy_term_initial_4_momentum(
+                Q0, 
+                P0,
                 g_sym_inv,
                 metric_tensor_params,
                 q, 
@@ -106,9 +109,9 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
                 'Trying g_sym_inv = -g_sym_inv...\n'
             )
             g_sym_inv = -g_sym_inv
-            p0 = im.solve_energy_term_initial_4_momentum(
-                q0, 
-                p0,
+            P0 = im.solve_energy_term_initial_4_momentum(
+                Q0, 
+                P0,
                 g_sym_inv,
                 metric_tensor_params,
                 q, 
@@ -136,8 +139,8 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
         n_timesteps,
         delta,
         omega,
-        q0,
-        p0,
+        Q0,
+        P0,
         order=order
     )
     e = timeit.default_timer()
