@@ -16,7 +16,7 @@ initial 4-position
 q0 = [0, 10, np.pi / 4, 1]
 initial 3-momentum
 p0 = [0, 2, 1]
-(note: mainly tesing this more complex metrix works, not entirely sure of good intial conditions to test with)
+(note: mainly tesing this more complex metric, not entirely sure of good intial conditions to test with)
 ![image](https://user-images.githubusercontent.com/34322886/148498027-db0dd481-0cfe-4479-8513-5d8a037c7845.png)
 ![image](https://user-images.githubusercontent.com/34322886/148498212-3d5c0eb6-3327-4ae6-85a5-432b65e89abb.png)
 
@@ -31,7 +31,9 @@ Reference what you use and give credit.  This project was not built in a vacuum.
 
 We need more metrics!  See the the metric folder and metric.py.  One can always add thier own metric as per the goal of the project, but building up a library of metrics would be nice too.
 
-### Example Schwarzchild Metric
+## Examples 
+
+### Schwarzchild Metric
 Defining a metric is both simple and easy to explore in jupyter notebook first (see example_notebooks/schwarzchild_metric.ipynb)
 
 1) Define the variables using sympy and create the line element
@@ -122,7 +124,8 @@ Special thanks to https://github.com/GeoffCope/ for sparking this project. Also 
     nonseparable Hamiltonians: Algorithm and
     long time performance. Phys Rev E. 2016 Oct;94(4-1):043303.
     doi: 10.1103/PhysRevE.94.043303. Epub 2016 Oct 10. PMID: 27841574.
-[3] The EinsteinPy Project (2021).
-    EinsteinPy: Python library for General Relativity
-    URL https://einsteinpy.org
 ```
+Inspired by:
+The EinsteinPy Project (2021).
+EinsteinPy: Python library for General Relativity
+URL https://einsteinpy.org
