@@ -20,7 +20,6 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
                          neg_g_inv=False):
     """
     
-
     Parameters
     ----------
     q : sympy expression

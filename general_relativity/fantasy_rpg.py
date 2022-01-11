@@ -294,7 +294,7 @@ def geodesic_integrator(g_sym_inv, q, n_timesteps, delta, omega, Q0, P0,
     g_inv_func = cnv.symbolic_to_numpy_func(g_sym_inv, q)
     
     # partial derivatives of g w.r.t. to each coord in q symbolic
-    # list of functions of q array
+    # list of functions of of symbolic variables from q array
     g_inv_deriv_funcs = [
         dts.metric_tensor_partial_derivative(g_sym_inv, q, i)
         for i in range(4)
