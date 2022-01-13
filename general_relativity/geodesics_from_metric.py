@@ -91,32 +91,41 @@ def geodesic_from_metric(q, dq, line_element, metric_tensor_params_sym,
     
     # calculate the initial condition for 4-momentum engery term
     if solve_p0_zeroth_term or (P0.shape[0] == 3):
-        # try catch in case didnt get sign correct on g_sym_inv
-        try:
-            P0 = im.solve_energy_term_initial_4_momentum(
-                Q0, 
-                P0,
-                g_sym_inv,
-                metric_tensor_params,
-                q, 
-                metric_tensor_params_sym,
-                timelike=timelike
-            )
-        except TypeError as e:
-            print(
-                f'CAUGHT: {e}\n'
-                'Trying g_sym_inv = -g_sym_inv...\n'
-            )
-            g_sym_inv = -g_sym_inv
-            P0 = im.solve_energy_term_initial_4_momentum(
-                Q0, 
-                P0,
-                g_sym_inv,
-                metric_tensor_params,
-                q, 
-                metric_tensor_params_sym,
-                timelike=timelike
-            )
+        P0 = im.solve_energy_term_initial_4_momentum(
+            Q0, 
+            P0,
+            g_sym_inv,
+            metric_tensor_params,
+            q, 
+            metric_tensor_params_sym,
+            timelike=timelike
+        )
+        # # try catch in case didnt get sign correct on g_sym_inv
+        # try:
+        #     P0 = im.solve_energy_term_initial_4_momentum(
+        #         Q0, 
+        #         P0,
+        #         g_sym_inv,
+        #         metric_tensor_params,
+        #         q, 
+        #         metric_tensor_params_sym,
+        #         timelike=timelike
+        #     )
+        # except TypeError as e:
+        #     print(
+        #         f'CAUGHT: {e}\n'
+        #         'Trying g_sym_inv = -g_sym_inv...\n'
+        #     )
+        #     g_sym_inv = -g_sym_inv
+        #     P0 = im.solve_energy_term_initial_4_momentum(
+        #         Q0, 
+        #         P0,
+        #         g_sym_inv,
+        #         metric_tensor_params,
+        #         q, 
+        #         metric_tensor_params_sym,
+        #         timelike=timelike
+        #     )
     
     # contravariant metric tensor with param values subbed in
     g_sym_inv = cnv.symbolic_obj_subs(
