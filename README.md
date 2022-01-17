@@ -17,7 +17,8 @@ What this package brings extra to the table:
     -  Special functions libraries can easily be added such as those from scipy.special (see example `utils/symbolic_conversions.py`).  A handful of common metrics are also available under `metrics/metrics.py`.
 2. Automatic solving for engery component of intial 4-momentum.  
     -  The user provides the intial 3-momentum and the time component is solved for using conservation laws.
-3. Support for N test particles.  
+3. Support for N non-interacting test particles.  
+    -  Solve for N geodesics without having to run the solver N times.
     -  Given N intial conditions the symplectic integration algorithm is vectorized to support input of a matrix of intial position and momenta for many particles.
 4. Speed.  
     -  I've done my best to keep the code base light and effieicent.  Using pure numpy operations where possible and python with minimal egregious loops. 
